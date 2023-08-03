@@ -30,11 +30,15 @@ namespace SimpleMutexDemo
             for (size_t i{}; i != NumIterations; ++i)
             {
                 {
+                    // Scoped Lock! 
                     // <== remove comment from next line to demonstrate scattered output
-                    //std::scoped_lock<std::mutex> raii{ s_mutex };
+                    //std::scoped_lock<std::mutex> raii{ s_mutex };                             // Konstruktor mit bestehendem Mutex
                     //std::scoped_lock raii{ s_mutex };  // C++ 17 (automatic type deduction)
 
                     std::cout << "Counter " << m_id << ": i=" << i << "\n";
+
+                    // raii: Destruktor = implizites s_mutex.unlock() implementiert!
+                    // Sichert den Mutex gegen unbeabsichtliches Herausfallen aus dem Scope, z.B. mit einem break;
                 }
 
                 // just to force rescheduling the execution of the threads

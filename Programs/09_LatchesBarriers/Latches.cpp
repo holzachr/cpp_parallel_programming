@@ -28,14 +28,15 @@ namespace Latches_01 {
 
     void example_latches_01()
     {
-        std::latch done{ ThreadCount };
+        std::latch done{ ThreadCount };             // Riegel (Latch) vorbelegen mit Zahl 4
 
-        std::array<int, ThreadCount> results{};
+        std::array<int, ThreadCount> results{};     // 4 Results
 
-        std::vector<std::future<void>> tasks;
+        std::vector<std::future<void>> tasks;       // 4 Futures. Wozu? 
 
         std::random_device device;
 
+        // Vorsicht bei Lambda mit Environment-REFERENZ [&]!
         auto worker = [&](size_t index, size_t msecs, int first, int last) {
 
             Logger::log(std::cout, "Calculating from ", first, " up to ", last, "...");
@@ -49,7 +50,7 @@ namespace Latches_01 {
 
             Logger::log(std::cout, "Done");
 
-            done.count_down();
+            done.count_down();                      // Latch wird am Ende des Workers heruntergezählt
         };
 
         int begin{ 1 };
@@ -67,14 +68,24 @@ namespace Latches_01 {
                 begin,
                 end
             );
-            tasks.push_back(std::move(future));
+            tasks.push_back(std::move(future));     // Ein Future ist nicht kopierbar! NUR verschiebbar!
+                                                    // Der lokale Future muss herausverschoben werden, damit er
+                                                    // nebenbei "weiterleben" kann, siehe folgender Kommentar 
+                                                    // zum Destruktor!
 
             begin = end;
             end += increment;
+
+            // Hier würde der Destruktor des lokalen Futures aufgerufen, falls es nicht gemoved würde!
+            // VORSICHT: Im D'tor des Futures steht .get()!!
         }
 
         // block until work is done
-        done.wait();
+        done.wait();                                // Warten auf den Latch = das Ende aller Worker
+
+        // Alternative:
+        // tasks.clear();   Ruft Destruktoren aller Futures auf, diese blockieren dort jeweils in ihren D'tor.get()-Aufrufen.
+
         Logger::log(std::cout, "All calculations done :)");
 
         /*

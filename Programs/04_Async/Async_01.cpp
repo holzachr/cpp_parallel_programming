@@ -32,6 +32,7 @@ namespace SimpleAsync {
     void test_01() {
 
         // std::async with function
+        // Die Futures sind die Träger der Rückgabewerte der Async-Threads.
         std::future<std::string> futureFunction{ 
             std::async(
             helloFunction,

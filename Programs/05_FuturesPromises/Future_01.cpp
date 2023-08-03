@@ -21,9 +21,9 @@ namespace PromisesAndFutures01 {
 
     void testVersion01() {
 
-        std::promise<int> promiseObj{};
+        std::promise<int> promiseObj{};                             // Versprechen anlegen auf Datentyp int
 
-        std::future<int> futureObj{ promiseObj.get_future() };
+        std::future<int> futureObj{ promiseObj.get_future() };      // Zukunft des Versprechens einfordern
 
         std::thread t {doWorkVersion01, &promiseObj };
 
@@ -34,7 +34,7 @@ namespace PromisesAndFutures01 {
         t.detach();
     }
 
-    void doWorkVersion02(std::promise<int>&& promise)
+    void doWorkVersion02(std::promise<int>&& promise)               // RValue-Referenz...
     {
         std::cout << "Inside Thread (doWork - 02)" << std::endl;
 
@@ -49,7 +49,7 @@ namespace PromisesAndFutures01 {
 
         std::future<int> futureObj{ promiseObj.get_future() };
 
-        std::thread t{ doWorkVersion02, std::move (promiseObj) };
+        std::thread t{ doWorkVersion02, std::move (promiseObj) };   // ...move!
 
         std::cout << "Waiting for Result - 02: " << std::endl;
         int result{ futureObj.get() };
